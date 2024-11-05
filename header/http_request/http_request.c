@@ -13,6 +13,35 @@
 
 static int g_line_counter = 0;
 
+// 청크 인코딩을 디코딩하는 함수 추가
+static void decode_chunked_body(const char *chunked_body, char *decoded_body)
+{
+    const char *current = chunked_body;
+    char *output = decoded_body;
+
+    while (1)
+    {
+        // 청크 크기 읽기
+        long chunk_size;
+        sscanf(current, "%lx", &chunk_size);
+
+        // 청크 크기가 0이면 종료
+        if (chunk_size == 0)
+            break;
+
+        // 청크 데이터의 시작 위치로 이동 (\r\n 건너뛰기)
+        current = strchr(current, '\n') + 1;
+
+        // 청크 데이터 복사
+        memcpy(output, current, chunk_size);
+        output += chunk_size;
+
+        // 다음 청크로 이동 (\r\n 건너뛰기)
+        current += chunk_size + 2;
+    }
+    *output = '\0';
+}
+
 // HTTP 응답을 파싱하는 함수
 static void parse_http_response(const char *response, http_response_t *result)
 {
@@ -42,6 +71,14 @@ static void parse_http_response(const char *response, http_response_t *result)
         if (content_length_str)
         {
             sscanf(content_length_str, "Content-Length: %ld", &result->content_length);
+        }
+
+        // 청크 인코딩인 경우 디코딩 수행
+        if (result->is_chunked)
+        {
+            char decoded_body[8192] = {0}; // 적절한 크기로 조정 필요
+            decode_chunked_body(result->body, decoded_body);
+            strcpy(result->body, decoded_body);
         }
     }
 }
