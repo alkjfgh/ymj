@@ -13,23 +13,68 @@
 
 static int g_line_counter = 0;
 
-// 새로운 공통 함수 추가
-static void handle_http_response(int sockfd)
+// HTTP 응답을 파싱하는 함수
+static void parse_http_response(const char *response, http_response_t *result)
 {
-    char buffer[4096];
-    int bytes;
+    // 상태 코드와 메시지 파싱
+    sscanf(response, "HTTP/1.1 %d %[^\r\n]", &result->status_code, result->status_message);
 
-    while ((bytes = read(sockfd, buffer, sizeof(buffer) - 1)) > 0)
+    // 헤더와 바디 분리
+    const char *headers_start = strchr(response, '\n') + 1;
+    const char *body_start = strstr(response, "\r\n\r\n");
+
+    if (body_start)
     {
-        buffer[bytes] = '\0';
-        printf("%s", buffer);
+        // 헤더 복사
+        int headers_length = body_start - headers_start;
+        strncpy(result->headers, headers_start, headers_length);
+        result->headers[headers_length] = '\0';
 
-        // chunked 인코딩 종료 확인 (send_http_request에서 사용하던 체크)
-        if (strstr(buffer, "0\r\n\r\n") != NULL)
+        // 바디 복사
+        body_start += 4; // \r\n\r\n 건너뛰기
+        strcpy(result->body, body_start);
+
+        // Transfer-Encoding 확인
+        result->is_chunked = (strcasestr(result->headers, "Transfer-Encoding: chunked") != NULL);
+
+        // Content-Length 확인
+        const char *content_length_str = strcasestr(result->headers, "Content-Length:");
+        if (content_length_str)
         {
-            break;
+            sscanf(content_length_str, "Content-Length: %ld", &result->content_length);
         }
     }
+}
+
+// HTTP 응답을 받아 파싱하는 함수
+static void handle_http_response(int sockfd)
+{
+    char buffer[16384] = {0};
+    int bytes;
+    int total_bytes = 0;
+
+    while ((bytes = read(sockfd, buffer + total_bytes, sizeof(buffer) - total_bytes - 1)) > 0)
+    {
+        total_bytes += bytes;
+        buffer[total_bytes] = '\0';
+
+        if (strstr(buffer, "\r\n\r\n") != NULL)
+        {
+            if (strstr(buffer, "0\r\n\r\n") != NULL || !strstr(buffer, "Transfer-Encoding: chunked"))
+            {
+                break;
+            }
+        }
+    }
+
+    http_response_t response = {0};
+    parse_http_response(buffer, &response);
+
+    // 응답 정보 출력
+    printf("상태 코드: %d\n", response.status_code);
+    printf("상태 메시지: %s\n", response.status_message);
+    printf("\n=== 헤더 ===\n%s\n", response.headers);
+    printf("\n=== 바디 ===\n%s\n", response.body);
 }
 
 int send_http_request(const char *ip, int port, const char *path)
