@@ -237,3 +237,26 @@ void json_update_array(JsonObject *obj, const char *key, JsonArray *new_value);
  * @return 키가 존재하면 1, 존재하지 않으면 0
  */
 int json_has_key(JsonObject *obj, const char *key);
+
+/**
+ * @brief JSON 객체를 들여쓰기가 포함된 문자열로 직렬화합니다.
+ * @param obj 직렬화할 JSON 객체
+ * @return 직렬화된 JSON 문자열
+ */
+char *json_stringify_pretty(JsonObject *obj);
+
+/**
+ * @brief JSON 배열을 들여쓰기가 포함된 문자열로 직렬화합니다.
+ * @param arr 직렬화할 JSON 배열
+ * @param indent 들여쓰기 레벨
+ * @return 직렬화된 JSON 문자열
+ */
+char *json_serialize_array_pretty(JsonArray *arr, int indent);
+
+/**
+ * @brief JSON 객체를 들여쓰기가 포함된 문자열로 직렬화합니다.
+ * @param obj 직렬화할 JSON 객체
+ * @param indent 들여쓰기 레벨
+ * @return 직렬화된 JSON 문자열
+ */
+char *json_serialize_pretty(JsonObject *obj, int indent);

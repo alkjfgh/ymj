@@ -518,3 +518,151 @@ void json_update_array(JsonObject *obj, const char *key, JsonArray *new_value)
         }
     }
 }
+
+/**
+ * @brief JSON 객체를 들여쓰기가 포함된 문자열로 직렬화합니다.
+ * @param obj 직렬화할 JSON 객체
+ * @param indent 들여쓰기 레벨
+ * @return 직렬화된 JSON 문자열
+ */
+char *json_serialize_pretty(JsonObject *obj, int indent)
+{
+    char *buffer = malloc(8192); // 더 큰 버퍼 할당
+    char temp[2048];
+    char indent_str[64] = "";
+
+    // 들여쓰기 문자열 생성
+    for (int i = 0; i < indent; i++)
+    {
+        strcat(indent_str, "    "); // 4칸 공백
+    }
+
+    strcpy(buffer, "{\n");
+
+    for (int i = 0; i < obj->size; i++)
+    {
+        strcat(buffer, indent_str);
+        strcat(buffer, "    "); // 추가 들여쓰기
+
+        sprintf(temp, "\"%s\": ", obj->keys[i]);
+        strcat(buffer, temp);
+
+        switch (obj->values[i].type)
+        {
+        case JSON_STRING:
+            sprintf(temp, "\"%s\"", obj->values[i].string_val);
+            break;
+        case JSON_NUMBER:
+            sprintf(temp, "%.2f", obj->values[i].number_val);
+            break;
+        case JSON_BOOL:
+            sprintf(temp, "%s", obj->values[i].bool_val ? "true" : "false");
+            break;
+        case JSON_NULL:
+            sprintf(temp, "null");
+            break;
+        case JSON_OBJECT:
+        {
+            char *nested = json_serialize_pretty(obj->values[i].object_val, indent + 1);
+            strcpy(temp, nested);
+            free(nested);
+            break;
+        }
+        case JSON_ARRAY:
+        {
+            char *nested = json_serialize_array_pretty(obj->values[i].array_val, indent + 1);
+            strcpy(temp, nested);
+            free(nested);
+            break;
+        }
+        }
+        strcat(buffer, temp);
+
+        if (i < obj->size - 1)
+        {
+            strcat(buffer, ",");
+        }
+        strcat(buffer, "\n");
+    }
+
+    strcat(buffer, indent_str);
+    strcat(buffer, "}");
+    return buffer;
+}
+
+/**
+ * @brief JSON 배열을 들여쓰기가 포함된 문자열로 직렬화합니다.
+ * @param arr 직렬화할 JSON 배열
+ * @param indent 들여쓰기 레벨
+ * @return 직렬화된 JSON 배열 문자열
+ */
+char *json_serialize_array_pretty(JsonArray *arr, int indent)
+{
+    char *buffer = malloc(8192);
+    char temp[2048];
+    char indent_str[64] = "";
+
+    for (int i = 0; i < indent; i++)
+    {
+        strcat(indent_str, "    ");
+    }
+
+    strcpy(buffer, "[\n");
+
+    for (int i = 0; i < arr->size; i++)
+    {
+        strcat(buffer, indent_str);
+        strcat(buffer, "    ");
+
+        switch (arr->values[i].type)
+        {
+        case JSON_STRING:
+            sprintf(temp, "\"%s\"", arr->values[i].string_val);
+            break;
+        case JSON_NUMBER:
+            sprintf(temp, "%.2f", arr->values[i].number_val);
+            break;
+        case JSON_BOOL:
+            sprintf(temp, "%s", arr->values[i].bool_val ? "true" : "false");
+            break;
+        case JSON_NULL:
+            sprintf(temp, "null");
+            break;
+        case JSON_OBJECT:
+        {
+            char *nested = json_serialize_pretty(arr->values[i].object_val, indent + 1);
+            strcpy(temp, nested);
+            free(nested);
+            break;
+        }
+        case JSON_ARRAY:
+        {
+            char *nested = json_serialize_array_pretty(arr->values[i].array_val, indent + 1);
+            strcpy(temp, nested);
+            free(nested);
+            break;
+        }
+        }
+        strcat(buffer, temp);
+
+        if (i < arr->size - 1)
+        {
+            strcat(buffer, ",");
+        }
+        strcat(buffer, "\n");
+    }
+
+    strcat(buffer, indent_str);
+    strcat(buffer, "]");
+    return buffer;
+}
+
+/**
+ * @brief JSON 객체를 들여쓰기가 포함된 문자열로 직렬화합니다.
+ * @param obj 직렬화할 JSON 객체
+ * @return 직렬화된 JSON 문자열
+ */
+char *json_stringify_pretty(JsonObject *obj)
+{
+    return json_serialize_pretty(obj, 0);
+}
