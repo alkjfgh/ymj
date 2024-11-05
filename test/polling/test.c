@@ -5,7 +5,6 @@
 #include <time.h>
 #include <stdlib.h>
 
-// 도우미 함수들
 double get_random_cpu_usage()
 {
     return (double)(rand() % 100) / 10.0; // 0.0 ~ 9.9 사이 값
