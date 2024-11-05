@@ -13,6 +13,25 @@
 
 static int g_line_counter = 0;
 
+// 새로운 공통 함수 추가
+static void handle_http_response(int sockfd)
+{
+    char buffer[4096];
+    int bytes;
+
+    while ((bytes = read(sockfd, buffer, sizeof(buffer) - 1)) > 0)
+    {
+        buffer[bytes] = '\0';
+        printf("%s", buffer);
+
+        // chunked 인코딩 종료 확인 (send_http_request에서 사용하던 체크)
+        if (strstr(buffer, "0\r\n\r\n") != NULL)
+        {
+            break;
+        }
+    }
+}
+
 int send_http_request(const char *ip, int port, const char *path)
 {
     int sockfd;
@@ -57,20 +76,8 @@ int send_http_request(const char *ip, int port, const char *path)
         return -1;
     }
 
-    // 응답 받기
-    char buffer[4096];
-    int bytes;
-
-    while ((bytes = read(sockfd, buffer, sizeof(buffer) - 1)) > 0)
-    {
-        buffer[bytes] = '\0';
-        printf("%s", buffer);
-
-        if (strstr(buffer, "0\r\n\r\n") != NULL)
-        {
-            break;
-        }
-    }
+    // 응답 받기 부분을 공통 함수로 교체
+    handle_http_response(sockfd);
 
     close(sockfd);
     return 0;
@@ -230,5 +237,64 @@ int download_http_request(const char *ip, int port, const char *path, const char
 
     __sync_fetch_and_sub(&g_line_counter, 1);
 
+    return 0;
+}
+
+int send_http_post_request(const char *ip, int port, const char *path, const char *data)
+{
+    int sockfd;
+    struct sockaddr_in server_addr;
+
+    // 소켓 생성
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (sockfd < 0)
+    {
+        perror("소켓 생성 실패");
+        return -1;
+    }
+
+    // 서버 주소 구조체 초기화
+    memset(&server_addr, 0, sizeof(server_addr));
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(port);
+    if (inet_pton(AF_INET, ip, &server_addr.sin_addr) <= 0)
+    {
+        perror("잘못된 IP 주소");
+        close(sockfd);
+        return -1;
+    }
+
+    // 서버에 연결
+    if (connect(sockfd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
+    {
+        perror("연결 실패");
+        close(sockfd);
+        return -1;
+    }
+
+    // HTTP POST 요청 문자열 생성
+    char request[4096];
+    snprintf(request, sizeof(request),
+             "POST %s HTTP/1.1\r\n"
+             "Host: %s\r\n"
+             "Content-Type: application/json\r\n" // JSON 컨텐츠 타입으로 변경
+             "Content-Length: %zu\r\n"
+             "Connection: close\r\n"
+             "\r\n"
+             "%s",
+             path, ip, strlen(data), data);
+
+    // HTTP 요청 보내기
+    if (write(sockfd, request, strlen(request)) < 0)
+    {
+        perror("요청 전송 실패");
+        close(sockfd);
+        return -1;
+    }
+
+    // 응답 받기 부분을 공통 함수로 교체
+    handle_http_response(sockfd);
+
+    close(sockfd);
     return 0;
 }
