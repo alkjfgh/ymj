@@ -2,6 +2,7 @@
     "files.associations": {
         "time.h": "c",
         "http_request.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "json_builder.h": "c"
     }
 }
