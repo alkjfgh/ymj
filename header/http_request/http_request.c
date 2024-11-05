@@ -90,14 +90,6 @@ static void parse_http_response(const char *response, http_response_t *result)
             decode_chunked_body(result->body, decoded_body);
             strcpy(result->body, decoded_body);
         }
-
-        // 청크 인코딩인 경우 디코딩 수행
-        if (result->is_chunked)
-        {
-            char decoded_body[8192] = {0}; // 적절한 크기로 조정 필요
-            decode_chunked_body(result->body, decoded_body);
-            strcpy(result->body, decoded_body);
-        }
     }
 }
 
