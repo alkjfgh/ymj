@@ -16,7 +16,7 @@ LIBS =
 #---------------------------------------------------
 # 소스 파일들
 #---------------------------------------------------
-SRCS = test.c ../header/http_request/http_request.c ../header/thread/thread.c ../header/json/json_builder.c
+SRCS = test.c ../../header/http_request/http_request.c ../../header/thread/thread.c ../../header/json/json_builder.c
 
 #---------------------------------------------------
 # 실행 파일 이름

@@ -1,7 +1,7 @@
 #include <unistd.h>
 #include <stdio.h>
-#include "../header/http_request/http_request.h"
-#include "../header/json/json_builder.h"
+#include "../../header/http_request/http_request.h"
+#include "../../header/json/json_builder.h"
 
 int main(void)
 {
@@ -19,7 +19,7 @@ int main(void)
     json_add_number(obj, "net_usage", 17188205);
     json_add_string(obj, "operating_mode", "detect");
 
-    const char *data = json_stringify(obj);
+    const char *data = json_stringify((JsonValue *)obj);
 
     "\"user_id\":\"00-15-5d-a9-c9-8a\","
     "\"time_stamp\":\"2024-08-08 13:51:25\","
@@ -37,7 +37,7 @@ int main(void)
 
     printf("json data: %s\n", data);
 
-    for (int i = 0; i < 10; i++)
+    for (int i = 1; i <= 10; i++)
     {
         printf("send polling post request %d\n", i);
         send_http_post_request("59.6.79.138", 8080, "/tc_connect_continue.php", data);

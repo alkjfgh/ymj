@@ -3,7 +3,6 @@
 #include <string.h>
 #include "json_builder.h"
 
-// 구현 예시
 JsonObject *json_create_object(void)
 {
     JsonObject *obj = malloc(sizeof(JsonObject));
