@@ -283,3 +283,102 @@ char *json_stringify(JsonObject *obj)
 {
     return json_serialize(obj);
 }
+
+int json_has_key(JsonObject *obj, const char *key)
+{
+    for (int i = 0; i < obj->size; i++)
+    {
+        if (strcmp(obj->keys[i], key) == 0)
+        {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+void json_update_string(JsonObject *obj, const char *key, const char *new_value)
+{
+    for (int i = 0; i < obj->size; i++)
+    {
+        if (strcmp(obj->keys[i], key) == 0 && obj->values[i].type == JSON_STRING)
+        {
+            free(obj->values[i].string_val);
+            obj->values[i].string_val = strdup(new_value);
+            return;
+        }
+    }
+}
+
+void json_update_number(JsonObject *obj, const char *key, double new_value)
+{
+    for (int i = 0; i < obj->size; i++)
+    {
+        if (strcmp(obj->keys[i], key) == 0 && obj->values[i].type == JSON_NUMBER)
+        {
+            obj->values[i].number_val = new_value;
+            return;
+        }
+    }
+}
+
+void json_update_bool(JsonObject *obj, const char *key, int new_value)
+{
+    for (int i = 0; i < obj->size; i++)
+    {
+        if (strcmp(obj->keys[i], key) == 0 && obj->values[i].type == JSON_BOOL)
+        {
+            obj->values[i].bool_val = new_value;
+            return;
+        }
+    }
+}
+
+void json_update_null(JsonObject *obj, const char *key)
+{
+    for (int i = 0; i < obj->size; i++)
+    {
+        if (strcmp(obj->keys[i], key) == 0)
+        {
+            switch (obj->values[i].type)
+            {
+            case JSON_STRING:
+                free(obj->values[i].string_val);
+                break;
+            case JSON_OBJECT:
+                json_free(obj->values[i].object_val);
+                break;
+            case JSON_ARRAY:
+                json_free_array(obj->values[i].array_val);
+                break;
+            }
+            obj->values[i].type = JSON_NULL;
+            return;
+        }
+    }
+}
+
+void json_update_object(JsonObject *obj, const char *key, JsonObject *new_value)
+{
+    for (int i = 0; i < obj->size; i++)
+    {
+        if (strcmp(obj->keys[i], key) == 0 && obj->values[i].type == JSON_OBJECT)
+        {
+            json_free(obj->values[i].object_val);
+            obj->values[i].object_val = new_value;
+            return;
+        }
+    }
+}
+
+void json_update_array(JsonObject *obj, const char *key, JsonArray *new_value)
+{
+    for (int i = 0; i < obj->size; i++)
+    {
+        if (strcmp(obj->keys[i], key) == 0 && obj->values[i].type == JSON_ARRAY)
+        {
+            json_free_array(obj->values[i].array_val);
+            obj->values[i].array_val = new_value;
+            return;
+        }
+    }
+}

@@ -67,3 +67,14 @@ void json_free_string(char *json_str);
 
 void json_free_array(JsonArray *arr);
 char *json_serialize_array(JsonArray *arr);
+
+// 값 수정 함수
+void json_update_string(JsonObject *obj, const char *key, const char *new_value);
+void json_update_number(JsonObject *obj, const char *key, double new_value);
+void json_update_bool(JsonObject *obj, const char *key, int new_value);
+void json_update_null(JsonObject *obj, const char *key);
+void json_update_object(JsonObject *obj, const char *key, JsonObject *new_value);
+void json_update_array(JsonObject *obj, const char *key, JsonArray *new_value);
+
+// 키 존재 여부 확인 함수
+int json_has_key(JsonObject *obj, const char *key);
