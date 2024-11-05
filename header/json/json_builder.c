@@ -1,8 +1,17 @@
+/**
+ * @file json_builder.c
+ * @brief JSON 객체 생성 및 조작을 위한 구현 파일
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "json_builder.h"
 
+/**
+ * @brief 새로운 JSON 객체를 생성합니다.
+ * @return 새로 생성된 JsonObject 포인터
+ */
 JsonObject *json_create_object(void)
 {
     JsonObject *obj = malloc(sizeof(JsonObject));
@@ -10,6 +19,12 @@ JsonObject *json_create_object(void)
     return obj;
 }
 
+/**
+ * @brief JSON 객체에 문자열 값을 추가합니다.
+ * @param obj 대상 JSON 객체
+ * @param key 키 문자열
+ * @param value 값 문자열
+ */
 void json_add_string(JsonObject *obj, const char *key, const char *value)
 {
     if (obj->size >= MAX_ITEMS)
@@ -21,6 +36,12 @@ void json_add_string(JsonObject *obj, const char *key, const char *value)
     obj->size++;
 }
 
+/**
+ * @brief JSON 객체에 숫자 값을 추가합니다.
+ * @param obj 대상 JSON 객체
+ * @param key 키 문자열
+ * @param value 숫자 값
+ */
 void json_add_number(JsonObject *obj, const char *key, double value)
 {
     if (obj->size >= MAX_ITEMS)
@@ -32,6 +53,12 @@ void json_add_number(JsonObject *obj, const char *key, double value)
     obj->size++;
 }
 
+/**
+ * @brief JSON 객체에 불리언 값을 추가합니다.
+ * @param obj 대상 JSON 객체
+ * @param key 키 문자열
+ * @param value 불리언 값 (0 또는 1)
+ */
 void json_add_boolean(JsonObject *obj, const char *key, int value)
 {
     if (obj->size >= MAX_ITEMS)
@@ -43,6 +70,10 @@ void json_add_boolean(JsonObject *obj, const char *key, int value)
     obj->size++;
 }
 
+/**
+ * @brief JSON 객체의 메모리를 해제합니다.
+ * @param obj 해제할 JSON 객체
+ */
 void json_free(JsonObject *obj)
 {
     for (int i = 0; i < obj->size; i++)
@@ -66,6 +97,10 @@ void json_free(JsonObject *obj)
     free(obj);
 }
 
+/**
+ * @brief JSON 배열의 메모리를 해제합니다.
+ * @param arr 해제할 JSON 배열
+ */
 void json_free_array(JsonArray *arr)
 {
     for (int i = 0; i < arr->size; i++)
@@ -88,6 +123,11 @@ void json_free_array(JsonArray *arr)
     free(arr);
 }
 
+/**
+ * @brief JSON 객체를 문자열로 직렬화합니다.
+ * @param obj 직렬화할 JSON 객체
+ * @return 직렬화된 JSON 문자열
+ */
 char *json_serialize(JsonObject *obj)
 {
     char *buffer = malloc(4096);
@@ -141,6 +181,11 @@ char *json_serialize(JsonObject *obj)
     return buffer;
 }
 
+/**
+ * @brief JSON 배열을 문자열로 직렬화합니다.
+ * @param arr 직렬화할 JSON 배열
+ * @return 직렬화된 JSON 배열 문자열
+ */
 char *json_serialize_array(JsonArray *arr)
 {
     char *buffer = malloc(4096);
@@ -191,6 +236,10 @@ char *json_serialize_array(JsonArray *arr)
     return buffer;
 }
 
+/**
+ * @brief 새로운 JSON 배열을 생성합니다.
+ * @return 새로 생성된 JsonArray 포인터
+ */
 JsonArray *json_create_array(void)
 {
     JsonArray *arr = malloc(sizeof(JsonArray));
@@ -198,6 +247,12 @@ JsonArray *json_create_array(void)
     return arr;
 }
 
+/**
+ * @brief JSON 객체에 JSON 객체를 추가합니다.
+ * @param obj 대상 JSON 객체
+ * @param key 키 문자열
+ * @param value 추가할 JSON 객체
+ */
 void json_add_object(JsonObject *obj, const char *key, JsonObject *value)
 {
     if (obj->size >= MAX_ITEMS)
@@ -209,6 +264,12 @@ void json_add_object(JsonObject *obj, const char *key, JsonObject *value)
     obj->size++;
 }
 
+/**
+ * @brief JSON 객체에 JSON 배열을 추가합니다.
+ * @param obj 대상 JSON 객체
+ * @param key 키 문자열
+ * @param value 추가할 JSON 배열
+ */
 void json_add_array(JsonObject *obj, const char *key, JsonArray *value)
 {
     if (obj->size >= MAX_ITEMS)
@@ -220,6 +281,11 @@ void json_add_array(JsonObject *obj, const char *key, JsonArray *value)
     obj->size++;
 }
 
+/**
+ * @brief JSON 객체에 NULL 값을 추가합니다.
+ * @param obj 대상 JSON 객체
+ * @param key 키 문자열
+ */
 void json_add_null(JsonObject *obj, const char *key)
 {
     if (obj->size >= MAX_ITEMS)
@@ -230,6 +296,11 @@ void json_add_null(JsonObject *obj, const char *key)
     obj->size++;
 }
 
+/**
+ * @brief JSON 배열에 문자열 값을 추가합니다.
+ * @param arr 대상 JSON 배열
+ * @param value 추가할 문자열 값
+ */
 void json_array_add_string(JsonArray *arr, const char *value)
 {
     if (arr->size >= MAX_ITEMS)
@@ -240,6 +311,11 @@ void json_array_add_string(JsonArray *arr, const char *value)
     arr->size++;
 }
 
+/**
+ * @brief JSON 배열에 숫자 값을 추가합니다.
+ * @param arr 대상 JSON 배열
+ * @param value 추가할 숫자 값
+ */
 void json_array_add_number(JsonArray *arr, double value)
 {
     if (arr->size >= MAX_ITEMS)
@@ -250,6 +326,11 @@ void json_array_add_number(JsonArray *arr, double value)
     arr->size++;
 }
 
+/**
+ * @brief JSON 배열에 불리언 값을 추가합니다.
+ * @param arr 대상 JSON 배열
+ * @param value 추가할 불리언 값
+ */
 void json_array_add_bool(JsonArray *arr, int value)
 {
     if (arr->size >= MAX_ITEMS)
@@ -260,6 +341,10 @@ void json_array_add_bool(JsonArray *arr, int value)
     arr->size++;
 }
 
+/**
+ * @brief JSON 배열에 NULL 값을 추가합니다.
+ * @param arr 대상 JSON 배열
+ */
 void json_array_add_null(JsonArray *arr)
 {
     if (arr->size >= MAX_ITEMS)
@@ -269,6 +354,11 @@ void json_array_add_null(JsonArray *arr)
     arr->size++;
 }
 
+/**
+ * @brief JSON 배열에 JSON 객체를 추가합니다.
+ * @param arr 대상 JSON 배열
+ * @param value 추가할 JSON 객체
+ */
 void json_array_add_object(JsonArray *arr, JsonObject *value)
 {
     if (arr->size >= MAX_ITEMS)
@@ -279,11 +369,22 @@ void json_array_add_object(JsonArray *arr, JsonObject *value)
     arr->size++;
 }
 
+/**
+ * @brief JSON 객체를 문자열로 직렬화합니다.
+ * @param obj 직렬화할 JSON 객체
+ * @return 직렬화된 JSON 문자열
+ */
 char *json_stringify(JsonObject *obj)
 {
     return json_serialize(obj);
 }
 
+/**
+ * @brief JSON 객체에 특정 키가 있는지 확인합니다.
+ * @param obj 대상 JSON 객체
+ * @param key 확인할 키 문자열
+ * @return 키가 있으면 1, 없으면 0
+ */
 int json_has_key(JsonObject *obj, const char *key)
 {
     for (int i = 0; i < obj->size; i++)
@@ -296,6 +397,12 @@ int json_has_key(JsonObject *obj, const char *key)
     return 0;
 }
 
+/**
+ * @brief JSON 객체에 특정 키의 문자열 값을 업데이트합니다.
+ * @param obj 대상 JSON 객체
+ * @param key 업데이트할 키 문자열
+ * @param new_value 새로운 문자열 값
+ */
 void json_update_string(JsonObject *obj, const char *key, const char *new_value)
 {
     for (int i = 0; i < obj->size; i++)
@@ -309,6 +416,12 @@ void json_update_string(JsonObject *obj, const char *key, const char *new_value)
     }
 }
 
+/**
+ * @brief JSON 객체에 특정 키의 숫자 값을 업데이트합니다.
+ * @param obj 대상 JSON 객체
+ * @param key 업데이트할 키 문자열
+ * @param new_value 새로운 숫자 값
+ */
 void json_update_number(JsonObject *obj, const char *key, double new_value)
 {
     for (int i = 0; i < obj->size; i++)
@@ -321,6 +434,12 @@ void json_update_number(JsonObject *obj, const char *key, double new_value)
     }
 }
 
+/**
+ * @brief JSON 객체에 특정 키의 불리언 값을 업데이트합니다.
+ * @param obj 대상 JSON 객체
+ * @param key 업데이트할 키 문자열
+ * @param new_value 새로운 불리언 값
+ */
 void json_update_bool(JsonObject *obj, const char *key, int new_value)
 {
     for (int i = 0; i < obj->size; i++)
@@ -333,6 +452,11 @@ void json_update_bool(JsonObject *obj, const char *key, int new_value)
     }
 }
 
+/**
+ * @brief JSON 객체에 특정 키의 NULL 값을 업데이트합니다.
+ * @param obj 대상 JSON 객체
+ * @param key 업데이트할 키 문자열
+ */
 void json_update_null(JsonObject *obj, const char *key)
 {
     for (int i = 0; i < obj->size; i++)
@@ -357,6 +481,12 @@ void json_update_null(JsonObject *obj, const char *key)
     }
 }
 
+/**
+ * @brief JSON 객체에 특정 키의 JSON 객체를 업데이트합니다.
+ * @param obj 대상 JSON 객체
+ * @param key 업데이트할 키 문자열
+ * @param new_value 새로운 JSON 객체
+ */
 void json_update_object(JsonObject *obj, const char *key, JsonObject *new_value)
 {
     for (int i = 0; i < obj->size; i++)
@@ -370,6 +500,12 @@ void json_update_object(JsonObject *obj, const char *key, JsonObject *new_value)
     }
 }
 
+/**
+ * @brief JSON 객체에 특정 키의 JSON 배열을 업데이트합니다.
+ * @param obj 대상 JSON 객체
+ * @param key 업데이트할 키 문자열
+ * @param new_value 새로운 JSON 배열
+ */
 void json_update_array(JsonObject *obj, const char *key, JsonArray *new_value)
 {
     for (int i = 0; i < obj->size; i++)

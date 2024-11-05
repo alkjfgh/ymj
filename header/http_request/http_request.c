@@ -11,9 +11,48 @@
 #include <time.h>
 #include <strings.h>
 
+// 여러 다운로드의 동시 진행을 위한 전역 라인 카운터
 static int g_line_counter = 0;
 
-// HTTP 응답을 파싱하는 함수
+/**
+ * @brief 청크 인코딩된 HTTP 응답 본문을 디코딩하는 함수
+ * @param chunked_body 청크 인코딩된 원본 데이터
+ * @param decoded_body 디코딩된 데이터를 저장할 버퍼
+ */
+static void decode_chunked_body(const char *chunked_body, char *decoded_body)
+{
+    const char *current = chunked_body;
+    char *output = decoded_body;
+
+    while (1)
+    {
+        // 청크 크기 읽기
+        long chunk_size;
+        sscanf(current, "%lx", &chunk_size);
+
+        // 청크 크기가 0이면 종료
+        if (chunk_size == 0)
+            break;
+
+        // 청크 데이터의 시작 위치로 이동 (\r\n 건너뛰기)
+        current = strchr(current, '\n') + 1;
+
+        // 청크 데이터 복사
+        memcpy(output, current, chunk_size);
+        output += chunk_size;
+
+        // 다음 청크로 이동 (\r\n 건너뛰기)
+        current += chunk_size + 2;
+    }
+    *output = '\0';
+}
+
+/**
+ * @brief HTTP 응답을 파싱하여 구조체에 저장하는 함수
+ * @param response 원본 HTTP 응답 문자열
+ * @param result 파싱된 결과를 저장할 구조체
+ * @details 상태 코드, 헤더, 본문을 분리하고 청크 인코딩 처리
+ */
 static void parse_http_response(const char *response, http_response_t *result)
 {
     // 상태 코드와 메시지 파싱
@@ -43,10 +82,22 @@ static void parse_http_response(const char *response, http_response_t *result)
         {
             sscanf(content_length_str, "Content-Length: %ld", &result->content_length);
         }
+
+        // 청크 인코딩인 경우 디코딩 수행
+        if (result->is_chunked)
+        {
+            char decoded_body[8192] = {0}; // 적절한 크기로 조정 필요
+            decode_chunked_body(result->body, decoded_body);
+            strcpy(result->body, decoded_body);
+        }
     }
 }
 
-// HTTP 응답을 받아 파싱하는 함수
+/**
+ * @brief 소켓으로부터 HTTP 응답을 읽고 처리하는 함수
+ * @param sockfd 연결된 소켓 디스크립터
+ * @details 청크 인코딩 및 일반 응답 모두 처리 가능
+ */
 static void handle_http_response(int sockfd)
 {
     char buffer[16384] = {0};
@@ -77,6 +128,13 @@ static void handle_http_response(int sockfd)
     printf("\n=== 바디 ===\n%s\n", response.body);
 }
 
+/**
+ * @brief HTTP GET 요청을 보내고 응답을 처리하는 함수
+ * @param ip 대상 서버 IP
+ * @param port 대상 서버 포트
+ * @param path 요청 경로
+ * @return 성공 시 0, 실패 시 -1
+ */
 int send_http_request(const char *ip, int port, const char *path)
 {
     int sockfd;
@@ -128,6 +186,15 @@ int send_http_request(const char *ip, int port, const char *path)
     return 0;
 }
 
+/**
+ * @brief HTTP GET 요청으로 파일을 다운로드하는 함수
+ * @param ip 대상 서버 IP
+ * @param port 대상 서버 포트
+ * @param path 요청 경로
+ * @param save_path 저장할 로컬 파일 경로
+ * @return 성공 시 0, 실패 시 -1
+ * @details 진행률 표시 및 다운로드 속도 계산 기능 포함
+ */
 int download_http_request(const char *ip, int port, const char *path, const char *save_path)
 {
     int sockfd;
@@ -285,6 +352,14 @@ int download_http_request(const char *ip, int port, const char *path, const char
     return 0;
 }
 
+/**
+ * @brief HTTP POST 요청을 보내고 응답을 처리하는 함수
+ * @param ip 대상 서버 IP
+ * @param port 대상 서버 포트
+ * @param path 요청 경로
+ * @param data POST 요청에 포함할 JSON 데이터
+ * @return 성공 시 0, 실패 시 -1
+ */
 int send_http_post_request(const char *ip, int port, const char *path, const char *data)
 {
     int sockfd;
