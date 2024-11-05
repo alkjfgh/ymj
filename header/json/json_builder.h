@@ -44,7 +44,7 @@ struct JsonArray
 // 객체 생성/해제 함수
 JsonObject *json_create_object(void);
 JsonArray *json_create_array(void);
-void json_free(JsonValue *value);
+void json_free(JsonObject *value);
 
 // 값 추가 함수
 void json_add_string(JsonObject *obj, const char *key, const char *value);
@@ -62,7 +62,7 @@ void json_array_add_null(JsonArray *arr);
 void json_array_add_object(JsonArray *arr, JsonObject *value);
 
 // JSON 문자열 생성/해제 함수
-char *json_stringify(JsonValue *value);
+char *json_stringify(JsonObject *value);
 void json_free_string(char *json_str);
 
 void json_free_array(JsonArray *arr);

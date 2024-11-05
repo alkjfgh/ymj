@@ -19,7 +19,7 @@ int main(void)
     json_add_number(obj, "net_usage", 17188205);
     json_add_string(obj, "operating_mode", "detect");
 
-    const char *data = json_stringify((JsonValue *)obj);
+    const char *data = json_stringify(obj);
 
     "\"user_id\":\"00-15-5d-a9-c9-8a\","
     "\"time_stamp\":\"2024-08-08 13:51:25\","
@@ -43,5 +43,7 @@ int main(void)
         send_http_post_request("59.6.79.138", 8080, "/tc_connect_continue.php", data);
         sleep(1);
     }
+
+    json_free(obj);
     return 0;
 }

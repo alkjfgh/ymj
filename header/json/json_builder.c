@@ -43,9 +43,8 @@ void json_add_boolean(JsonObject *obj, const char *key, int value)
     obj->size++;
 }
 
-void json_free(JsonValue *value)
+void json_free(JsonObject *obj)
 {
-    JsonObject *obj = (JsonObject *)value; // 타입 캐스팅 추가
     for (int i = 0; i < obj->size; i++)
     {
         free(obj->keys[i]);
@@ -55,7 +54,7 @@ void json_free(JsonValue *value)
             free(obj->values[i].string_val);
             break;
         case JSON_OBJECT:
-            json_free((JsonValue *)obj->values[i].object_val); // 타입 캐스팅 추가
+            json_free(obj->values[i].object_val); // 타입 캐스팅 추가
             break;
         case JSON_ARRAY:
             json_free_array(obj->values[i].array_val);
@@ -77,7 +76,7 @@ void json_free_array(JsonArray *arr)
             free(arr->values[i].string_val);
             break;
         case JSON_OBJECT:
-            json_free((JsonValue *)arr->values[i].object_val); // 타입 캐스팅 추가
+            json_free(arr->values[i].object_val); // 타입 캐스팅 추가
             break;
         case JSON_ARRAY:
             json_free_array(arr->values[i].array_val);
@@ -280,8 +279,7 @@ void json_array_add_object(JsonArray *arr, JsonObject *value)
     arr->size++;
 }
 
-char *json_stringify(JsonValue *value)
+char *json_stringify(JsonObject *obj)
 {
-    JsonObject *obj = (JsonObject *)value;
     return json_serialize(obj);
 }
