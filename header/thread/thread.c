@@ -19,32 +19,41 @@
  * @note 메모리 할당 실패나 스레드 생성 실패 시 -1을 반환하며,
  * 할당된 자원은 자동으로 해제됩니다.
  */
-int create_and_run_threads(thread_func *functions, int num_threads, int *thread_nums)
+int create_and_run_threads_with_context(thread_func function, int num_threads, void *user_data)
 {
     pthread_t *threads = malloc(sizeof(pthread_t) * num_threads);
-    if (!threads)
+    ThreadContext *contexts = malloc(sizeof(ThreadContext) * num_threads);
+
+    if (!threads || !contexts)
     {
+        free(threads);
+        free(contexts);
         return -1;
     }
 
-    // Create threads
+    // 스레드 생성
     for (int i = 0; i < num_threads; i++)
     {
-        int ret = pthread_create(&threads[i], NULL, functions[i], NULL);
+        contexts[i].thread_num = i + 1;
+        contexts[i].user_data = user_data;
+
+        int ret = pthread_create(&threads[i], NULL, function, &contexts[i]);
         if (ret)
         {
-            fprintf(stderr, "Error creating thread %d\n", i);
+            fprintf(stderr, "스레드 생성 실패 %d\n", i);
             free(threads);
+            free(contexts);
             return -1;
         }
     }
 
-    // Wait for all threads to finish
+    // 모든 스레드 종료 대기
     for (int i = 0; i < num_threads; i++)
     {
         pthread_join(threads[i], NULL);
     }
 
     free(threads);
+    free(contexts);
     return 0;
 }

@@ -173,14 +173,13 @@ void polling_by_curl(int thread_num)
 
 void *polling_thread(void *arg)
 {
-    int thread_num = *((int *)arg);
+    ThreadContext *context = (ThreadContext *)arg;
+    int thread_num = context->thread_num;
 
     for (int i = 0; i < 10; i++)
     {
         printf("[Thread %d] %d번째 폴링 시작\n", thread_num, i + 1);
         polling_by_curl(thread_num);
-
-        // 다음 폴링까지 1초 대기
         sleep(1);
     }
 
@@ -195,33 +194,13 @@ void *polling_thread(void *arg)
 int main(void)
 {
     const int NUM_THREADS = 4;
-    pthread_t threads[NUM_THREADS];
-    int *thread_nums = malloc(sizeof(int) * NUM_THREADS);
 
-    if (thread_nums == NULL)
+    int result = create_and_run_threads_with_context(polling_thread, NUM_THREADS, NULL);
+    if (result != 0)
     {
-        fprintf(stderr, "메모리 할당 실패\n");
+        fprintf(stderr, "스레드 실행 실패\n");
         return -1;
     }
 
-    // 스레드 생성
-    for (int i = 0; i < NUM_THREADS; i++)
-    {
-        thread_nums[i] = i + 1;
-        if (pthread_create(&threads[i], NULL, polling_thread, &thread_nums[i]) != 0)
-        {
-            fprintf(stderr, "스레드 생성 실패\n");
-            free(thread_nums);
-            return -1;
-        }
-    }
-
-    // 모든 스레드가 완료될 때까지 대기
-    for (int i = 0; i < NUM_THREADS; i++)
-    {
-        pthread_join(threads[i], NULL);
-    }
-
-    free(thread_nums);
     return 0;
 }

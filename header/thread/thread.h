@@ -14,14 +14,22 @@
  */
 typedef void *(*thread_func)(void *);
 
-/**
- * @brief 여러 스레드를 생성하고 실행하는 함수
- * @param functions 실행할 스레드 함수들의 배열
- * @param num_threads 생성할 스레드의 수
- * @param thread_nums 스레드 번호를 저장할 배열
- * @return 성공 시 0, 실패 시 에러 코드 반환
- * @details 지정된 수만큼의 스레드를 생성하고 각각 주어진 함수를 실행합니다.
+/** @struct ThreadContext
+ *  @brief 스레드 컨텍스트 정보를 담는 구조체
  */
-int create_and_run_threads(thread_func *functions, int num_threads, int *thread_nums);
+typedef struct
+{
+    int thread_num;  /**< 스레드 번호 */
+    void *user_data; /**< 사용자 정의 데이터 */
+} ThreadContext;
+
+/**
+ * @brief 스레드 컨텍스트와 함께 스레드들을 생성하고 실행
+ * @param function 실행할 스레드 함수
+ * @param num_threads 생성할 스레드의 수
+ * @param user_data 각 스레드에 전달할 사용자 데이터
+ * @return 성공 시 0, 실패 시 -1
+ */
+int create_and_run_threads_with_context(thread_func function, int num_threads, void *user_data);
 
 #endif // THREAD_H
