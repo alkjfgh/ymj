@@ -6,7 +6,7 @@ LDFLAGS = -static
 LIB_PATH = /usr/local
 
 # 헤더 파일 경로
-INCLUDES = -I$(LIB_PATH)/include -I$(LIB_PATH)/include -I../../header
+INCLUDES = -I$(LIB_PATH)/include -I../../header
 
 # 라이브러리 (순서 중요)
 LIBS = $(LIB_PATH)/lib/libcurl.a \
