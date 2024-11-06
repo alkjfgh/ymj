@@ -152,12 +152,15 @@ void polling_by_curl(int thread_num)
     cJSON_AddNumberToObject(post_data, "net_usage", 17188205);
     cJSON_AddStringToObject(post_data, "operating_mode", "detect");
 
-    cJSON *post_response = test_http_post("http://59.6.79.138:8080/tc_connect_continue.php", post_data);
+    const char *url = "http://59.6.79.138:8080/tc_connect_continue.php";
+    // const char *url = "https://httpbin.org/post";
+
+    cJSON *post_response = test_http_post(url, post_data);
     if (post_response)
     {
         char *json_str = cJSON_Print(post_response);
-        printf("[Thread %d] http://59.6.79.138:8080/tc_connect_continue.php POST 응답 JSON:\n%s\n\n\n",
-               thread_num, json_str);
+        printf("[Thread %d] %s POST 응답 JSON:\n%s\n\n\n",
+               thread_num, url, json_str);
 
         free(json_str);
         cJSON_Delete(post_response);
