@@ -1,12 +1,12 @@
 CC = gcc
-CFLAGS = -Wall -DCURL_STATICLIB
+CFLAGS = -g -Wall -DCURL_STATICLIB
 LDFLAGS = -static
 
 # curl 설치 경로
 LIB_PATH = /usr/local
 
 # 헤더 파일 경로
-INCLUDES = -I$(LIB_PATH)/include -I$(LIB_PATH)/include
+INCLUDES = -I$(LIB_PATH)/include -I$(LIB_PATH)/include -I../../header
 
 # 라이브러리 (순서 중요)
 LIBS = $(LIB_PATH)/lib/libcurl.a \
@@ -22,13 +22,13 @@ LIBS = $(LIB_PATH)/lib/libcurl.a \
        /usr/lib/x86_64-linux-gnu/libbrotlienc.a \
        /usr/lib/x86_64-linux-gnu/libbrotlicommon.a \
        /usr/lib/x86_64-linux-gnu/libunistring.a \
-       -lz -ldl -pthread
+       -lpthread -lz -ldl
 
 # 타겟
 TARGET = test
 
 # 소스 파일
-SRCS = test.c
+SRCS = test.c ../../header/thread/thread.c
 OBJS = $(SRCS:.c=.o)
 
 all: $(TARGET)
