@@ -5,7 +5,7 @@ LDFLAGS = -static
 
 # 기본 경로 설정
 LIB_PATH = /usr/local
-ARCH = aarch64-linux-gnu
+ARCH = x86_64-linux-gnu
 SYS_LIB = /usr/lib/$(ARCH)
 
 # 컴파일에 필요한 헤더 파일 경로
