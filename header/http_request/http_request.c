@@ -100,22 +100,74 @@ static void parse_http_response(const char *response, http_response_t *result)
  */
 static void handle_http_response(int sockfd)
 {
+    // 소켓 타임아웃 설정 추가
+    struct timeval timeout;
+    timeout.tv_sec = 30; // 30초 타임아웃
+    timeout.tv_usec = 0;
+    setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
+
     char buffer[16384] = {0};
     int bytes;
     int total_bytes = 0;
+    int retry_count = 0;
+    const int MAX_RETRIES = 3;
 
     while ((bytes = read(sockfd, buffer + total_bytes, sizeof(buffer) - total_bytes - 1)) > 0)
     {
         total_bytes += bytes;
         buffer[total_bytes] = '\0';
 
+        // 응답이 완전한지 확인
         if (strstr(buffer, "\r\n\r\n") != NULL)
         {
-            if (strstr(buffer, "0\r\n\r\n") != NULL || !strstr(buffer, "Transfer-Encoding: chunked"))
+            // 청크 인코딩 확인
+            if (strstr(buffer, "Transfer-Encoding: chunked") != NULL)
             {
-                break;
+                // 청크의 끝(\r\n0\r\n\r\n)을 찾았는지 확인
+                if (strstr(buffer, "\r\n0\r\n\r\n") != NULL)
+                {
+                    break;
+                }
+            }
+            else
+            {
+                // Content-Length 확인
+                const char *content_length_str = strcasestr(buffer, "Content-Length:");
+                if (content_length_str)
+                {
+                    long content_length;
+                    sscanf(content_length_str, "Content-Length: %ld", &content_length);
+
+                    // 헤더 이후의 본문 위치 찾기
+                    const char *body_start = strstr(buffer, "\r\n\r\n") + 4;
+                    long body_length = total_bytes - (body_start - buffer);
+
+                    // 본문을 모두 받았는지 확인
+                    if (body_length >= content_length)
+                    {
+                        break;
+                    }
+                }
+                else if (strstr(buffer, "Connection: close") != NULL)
+                {
+                    // Connection: close인 경우 서버가 연결을 닫을 때까지 계속 읽기
+                    continue;
+                }
             }
         }
+
+        // 버퍼 오버플로우 방지
+        if (total_bytes >= sizeof(buffer) - 1)
+        {
+            fprintf(stderr, "응답이 버퍼 크기를 초과했습니다.\n");
+            break;
+        }
+    }
+
+    if (bytes < 0)
+    {
+        perror("응답 읽기 실패");
+        return;
     }
 
     http_response_t response = {0};
@@ -125,7 +177,40 @@ static void handle_http_response(int sockfd)
     printf("상태 코드: %d\n", response.status_code);
     printf("상태 메시지: %s\n", response.status_message);
     printf("\n=== 헤더 ===\n%s\n", response.headers);
-    printf("\n=== 바디 ===\n%s\n", response.body);
+
+    // 본문이 비어있지 않은 경우에만 출력
+    if (strlen(response.body) > 0)
+    {
+        printf("\n=== 바디 ===\n%s\n", response.body);
+        // body 값이 "ok"가 아닌 경우 로그 파일에 저장
+        if (strcasecmp(response.body, "ok") != 0)
+        {
+            time_t now;
+            time(&now);
+            char timestamp[64];
+            strftime(timestamp, sizeof(timestamp), "%Y%m%d_%H%M%S", localtime(&now));
+
+            char log_filename[256];
+            snprintf(log_filename, sizeof(log_filename), "http_error_%s.log", timestamp);
+
+            FILE *log_file = fopen(log_filename, "w");
+            if (log_file)
+            {
+                fprintf(log_file, "시간: %s\n", timestamp);
+                fprintf(log_file, "상태 코드: %d\n", response.status_code);
+                fprintf(log_file, "상태 메시지: %s\n", response.status_message);
+                fprintf(log_file, "\n=== 헤더 ===\n%s\n", response.headers);
+                fprintf(log_file, "\n=== 바디 ===\n%s\n", response.body);
+                fclose(log_file);
+
+                printf("응답이 %s 파일에 저장되었습니다.\n", log_filename);
+            }
+            else
+            {
+                perror("로그 파일 생성 실패");
+            }
+        }
+    }
 }
 
 /**
