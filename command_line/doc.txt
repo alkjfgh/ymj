@@ -1,0 +1,160 @@
+/* 프로젝트 구조
+/
+├── include/
+│   ├── commands.h         # 모든 명령어 함수 선언
+│   ├── types.h           # 공통 타입 정의
+│   ├── utils.h           # 유틸리티 함수 선언
+│   └── config.h          # 설정 관련 상수 및 매크로
+├── src/
+│   ├── main.c            # 메인 프로그램
+│   ├── command_parser.c  # 명령어 파싱 로직
+│   ├── command_parser.h  # 파서 헤더
+│   ├── commands/         # 각 명령어 구현
+│   │   ├── install.c     # 설치 관련 명령어
+│   │   ├── whitelist.c   # 화이트리스트 관련 명령어
+│   │   ├── logging.c     # 로깅 관련 명령어
+│   │   ├── security.c    # 보안 관련 명령어
+│   │   └── testing.c     # 테스트 관련 명령어
+│   └── utils/            # 유틸리티 함수들
+│       ├── file_utils.c  # 파일 처리 유틸리티
+│       └── log_utils.c   # 로깅 유틸리티
+└── Makefile              # 빌드 스크립트
+*/
+
+// include/types.h
+#ifndef TRUEEP_TYPES_H
+#define TRUEEP_TYPES_H
+
+typedef enum {
+    SUCCESS = 0,
+    ERROR_INVALID_ARGS = 1,
+    ERROR_EXECUTION = 2
+} CommandResult;
+
+#endif // TRUEEP_TYPES_H
+
+// include/commands.h
+#ifndef TRUEEP_COMMANDS_H
+#define TRUEEP_COMMANDS_H
+
+#include "types.h"
+
+// 설치 관련 명령어
+CommandResult install_without_user_input(void);
+CommandResult install_with_user_input(void);
+CommandResult connect_to_server(const char* server_url);
+
+// 화이트리스트 관련 명령어
+CommandResult add_to_whitelist(const char* path);
+CommandResult add_hash_to_whitelist(const char* path);
+CommandResult delete_from_whitelist(const char* path);
+CommandResult delete_hash_from_whitelist(const char* hash);
+
+// 로깅 관련 명령어
+CommandResult delete_logs_and_restart(void);
+CommandResult set_log_level(int level);
+CommandResult simulate_log(const char* filename);
+CommandResult simulate_operation(const char* filename);
+CommandResult delete_operation_logs(void);
+
+// 보안 관련 명령어
+CommandResult set_exit_password(void);
+CommandResult exit_with_password(const char* password);
+CommandResult set_uninstall_password(void);
+CommandResult uninstall_with_password(const char* password);
+CommandResult register_selinux(void);
+
+// 테스트 관련 명령어
+CommandResult test_environment(const char* config);
+CommandResult run_test(int test_number, int repeat_count);
+
+#endif // TRUEEP_COMMANDS_H
+
+// include/utils.h
+#ifndef TRUEEP_UTILS_H
+#define TRUEEP_UTILS_H
+
+#include <stdbool.h>
+#include "types.h"
+
+// 파일 유틸리티
+bool file_exists(const char* path);
+CommandResult create_directory(const char* path);
+CommandResult delete_file(const char* path);
+
+// 로깅 유틸리티
+void log_info(const char* format, ...);
+void log_error(const char* format, ...);
+void log_debug(const char* format, ...);
+
+#endif // TRUEEP_UTILS_H
+
+// src/command_parser.h
+#ifndef TRUEEP_COMMAND_PARSER_H
+#define TRUEEP_COMMAND_PARSER_H
+
+#include "../include/types.h"
+
+CommandResult process_single_command(int* current_arg, int argc, char* argv[]);
+void display_help(bool first_section);
+
+#endif // TRUEEP_COMMAND_PARSER_H
+
+// src/commands/install.c
+#include "../../include/commands.h"
+#include "../../include/utils.h"
+
+CommandResult install_without_user_input(void) {
+    log_info("Installing TrueEP without user input...");
+    // TODO: 실제 구현
+    return SUCCESS;
+}
+
+CommandResult install_with_user_input(void) {
+    log_info("Installing TrueEP with user input...");
+    // TODO: 실제 구현
+    return SUCCESS;
+}
+
+CommandResult connect_to_server(const char* server_url) {
+    log_info("Connecting to server: %s", server_url);
+    // TODO: 실제 구현
+    return SUCCESS;
+}
+
+// src/commands/whitelist.c
+#include "../../include/commands.h"
+#include "../../include/utils.h"
+
+CommandResult add_to_whitelist(const char* path) {
+    if (!file_exists(path)) {
+        log_error("File not found: %s", path);
+        return ERROR_INVALID_ARGS;
+    }
+    
+    log_info("Adding to whitelist: %s", path);
+    // TODO: 실제 구현
+    return SUCCESS;
+}
+
+// Makefile
+CC = gcc
+CFLAGS = -Wall -Wextra -I./include
+SRCDIR = src
+OBJDIR = obj
+
+SOURCES = $(wildcard $(SRCDIR)/*.c) \
+          $(wildcard $(SRCDIR)/commands/*.c) \
+          $(wildcard $(SRCDIR)/utils/*.c)
+
+OBJECTS = $(SOURCES:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
+
+trueep: $(OBJECTS)
+	$(CC) $(OBJECTS) -o $@
+
+$(OBJDIR)/%.o: $(SRCDIR)/%.c
+	@mkdir -p $(@D)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+clean:
+	rm -rf $(OBJDIR) trueep
