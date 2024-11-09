@@ -15,4 +15,17 @@ CommandResult add_to_whitelist(const char *path)
     return SUCCESS;
 }
 
-// ... 다른 화이트리스트 관련 함수들
+CommandResult add_hash_to_whitelist(const char *path) {
+    // 구현 필요
+    return SUCCESS;
+}
+
+CommandResult delete_from_whitelist(const char *path) {
+    // 구현 필요
+    return SUCCESS;
+}
+
+CommandResult delete_hash_from_whitelist(const char *hash) {
+    // 구현 필요
+    return SUCCESS;
+}

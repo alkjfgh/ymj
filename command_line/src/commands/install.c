@@ -1,17 +1,23 @@
 #include "../../include/commands.h"
 #include <stdio.h>
 
-CommandResult delete_logs_and_restart()
-{
-    printf("Deleting logs and restarting service...\n");
-    // TODO: 실제 구현
+CommandResult delete_logs_and_restart() {
+    // 구현 필요
     return SUCCESS;
 }
 
-CommandResult install_without_user_input()
-{
-    printf("Installing TrueEP without user input...\n");
-    // TODO: 실제 구현
+CommandResult install_without_user_input() {
+    // 구현 필요
+    return SUCCESS;
+}
+
+CommandResult install_with_user_input() {
+    // 구현 필요
+    return SUCCESS;
+}
+
+CommandResult connect_to_server(const char *server_url) {
+    // 구현 필요
     return SUCCESS;
 }
 
