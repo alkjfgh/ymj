@@ -11,6 +11,7 @@
 #include <json-c/json.h>
 #include <unistd.h>
 #include "libwww_curl.h"
+#include "processCommand.h"
 
 char time_str[20]; // 디버깅용 현재 시간을 저장할 변수
 
@@ -165,7 +166,7 @@ struct json_object *postTcConnectLogin(void)
  * @brief TC Connect Continue 응답을 분석하는 함수
  * @param result 서버로부터 받은 응답 데이터
  * @return int 응답 분석 결과 코드
- * @retval 0 알 수 없는 응답
+ * @retval 0 알 수 없��� 응답
  * @retval 1 'ok' 응답
  * @retval 2 환경 설정 명령
  * @retval 3 일반 명령
@@ -212,9 +213,60 @@ int switchResultOfTcConnectContinue(struct json_object *result)
  * @param result 서버 응답 데이터
  * @return char* 명령어 이름 문자열
  */
-char *getCommandName(struct json_object *result)
+const char *getCommandName(struct json_object *result)
 {
     return json_object_get_string(json_object_object_get(json_object_object_get(json_object_object_get(result, "data"), "content"), "command_name"));
+}
+
+int processCommand(struct json_object *result)
+{
+    const char *command_name = getCommandName(result);
+    if (strcmp(command_name, "tc_end") == 0)
+    {
+        return processTcEnd();
+    }
+    else if (strcmp(command_name, "tc_set_delete") == 0)
+    {
+        return processTcSetDelete();
+    }
+    else if (strcmp(command_name, "tc_set_zip") == 0)
+    {
+        return processTcSetZip();
+    }
+    else if (strcmp(command_name, "tc_get_zip") == 0)
+    {
+        return processTcGetZip();
+    }
+    else if (strcmp(command_name, "tc_getprocesslist") == 0)
+    {
+        return processTcGetProcessList();
+    }
+    else if (strcmp(command_name, "tc_cmd") == 0)
+    {
+        const char *command_parameters = json_object_get_string(json_object_object_get(json_object_object_get(json_object_object_get(result, "data"), "content"), "command_parameters"));
+        return processTcCmd(command_parameters);
+    }
+    else if (strcmp(command_name, "tc_set_user_info") == 0)
+    {
+        struct json_object *content = json_object_object_get(json_object_object_get(result, "data"), "content");
+        struct json_object *params = json_object_new_object();
+
+        // content의 모든 키-값 쌍을 순회
+        json_object_object_foreach(content, key, val)
+        {
+            // command_name을 제외한 나머지 데이터를 복사
+            if (strcmp(key, "command_name") != 0)
+            {
+                json_object_object_add(params, key, json_object_get(val));
+            }
+        }
+
+        int ret = processTcSetUserInfo(params);
+        json_object_put(params);
+        return ret;
+    }
+
+    return 0;
 }
 
 /**
@@ -250,7 +302,16 @@ int main(void)
         break;
     case 3:
         printf("커맨드 수신\n");
-        printf("command_name: %s\n", getCommandName(result2));
+        printf("command_name: %s\n", json_object_to_json_string(result2));
+        int isSuccess = processCommand(result2);
+        if (isSuccess == 1)
+        {
+            printf("커맨드 처리 실패\n");
+        }
+        else
+        {
+            printf("커맨드 처리 성공\n");
+        }
         break;
     }
 
