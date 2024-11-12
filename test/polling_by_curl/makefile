@@ -1,34 +1,45 @@
+# 컴파일러 설정
 CC = gcc
-CFLAGS = -g -Wall -DCURL_STATICLIB
+
+# 컴파일 옵션
+CFLAGS = -g -Wall -O2 -DCURL_STATICLIB
+INCLUDES = -I$(LIB_PATH)/include
+#CFLAGS = -g -I./mongoose
+
+# 기본 경로 설정
+LIB_PATH ?= /usr/local
+ARCH ?= $(shell uname -m)-linux-gnu
+SYS_LIB ?= /usr/lib/$(ARCH)
+
+
+# 링크 옵션 
+# 동적 링크 라이브러리
+# LDFLAGS = -lpthread -ljson-c -static
 LDFLAGS = -static
-
-# curl 설치 경로
-LIB_PATH = /usr/local
-
-# 헤더 파일 경로
-INCLUDES = -I$(LIB_PATH)/include -I../../header
 
 # 라이브러리 (순서 중요)
 LIBS = $(LIB_PATH)/lib/libcurl.a \
-       $(LIB_PATH)/lib/libcjson.a \
-       $(LIB_PATH)/lib/libcares.a \
-       $(LIB_PATH)/lib/libnghttp2.a \
-       /usr/lib/x86_64-linux-gnu/libidn2.a \
-       /usr/lib/x86_64-linux-gnu/libpsl.a \
-       /usr/lib/x86_64-linux-gnu/libssl.a \
-       /usr/lib/x86_64-linux-gnu/libcrypto.a \
-       /usr/lib/x86_64-linux-gnu/libzstd.a \
-       /usr/lib/x86_64-linux-gnu/libbrotlidec.a \
-       /usr/lib/x86_64-linux-gnu/libbrotlienc.a \
-       /usr/lib/x86_64-linux-gnu/libbrotlicommon.a \
-       /usr/lib/x86_64-linux-gnu/libunistring.a \
-       -lpthread -lz -ldl
+	$(LIB_PATH)/lib/libcares.a \
+	$(LIB_PATH)/lib/libnghttp2.a \
+	$(SYS_LIB)/libpsl.a \
+	$(SYS_LIB)/libidn2.a \
+	$(SYS_LIB)/libssl.a \
+	$(SYS_LIB)/libcrypto.a \
+	$(SYS_LIB)/libzstd.a \
+	$(SYS_LIB)/libbrotlidec.a \
+	$(SYS_LIB)/libbrotlienc.a \
+	$(SYS_LIB)/libbrotlicommon.a \
+	$(SYS_LIB)/libunistring.a \
+	$(SYS_LIB)/libz.a \
+	$(SYS_LIB)/libjson-c.a \
+	$(SYS_LIB)/libsodium.a \
+	-lpthread -ldl
 
 # 타겟
 TARGET = test
 
 # 소스 파일
-SRCS = test.c ../../header/thread/thread.c
+SRCS = test.c globaldata.c libconfig.c libdebug.c libwww_curl.c
 OBJS = $(SRCS:.c=.o)
 
 all: $(TARGET)

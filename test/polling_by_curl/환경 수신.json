@@ -1,0 +1,23 @@
+{
+    "user_id": "00-15-5d-a9-c9-8a",
+    "log_type": "tc_command",
+    "update_time": "2024-11-12 14:10:49",
+    "command_serial": "84740016770",
+    "command_hash": "ab14b520b06af306efb6ce0ebd5d1fbcf5decd1f184dacbc802f9dd334093593",
+    "content": {
+        "command_name": "tc_config",
+        "config_linux": {
+            "engine": "ransom",
+            "operating_mode": "no_watching",
+            "poll_time": 0,
+            "monitor_time": 0,
+            "log_folder_size": 0,
+            "log_cyper": "",
+            "end_hash": "797b59d2942a9118ea3d4cb78eae60a64271b609207f99594ee76b9f57b9944a",
+            "except_process": [],
+            "black_process": []
+        },
+        "config_linux_hash": "d752b47181b716abfaff4d5b40e9403756e996ed8f8b585dd7c2181bb2dff505",
+        "config_name": "\uc804\uccb4"
+    }
+}

@@ -1,0 +1,10 @@
+{
+    "user_id": "00-15-5d-a9-c9-8a",
+    "log_type": "tc_command",
+    "update_time": "2024-11-12 15:03:12",
+    "command_serial": "91393923882",
+    "command_hash": "eb7bfffd59c2af3ca7fbe8da16c118b0742fca8c36b785920948121d30ec8bf1",
+    "content": {
+        "command_name": "tc_end"
+    }
+}
