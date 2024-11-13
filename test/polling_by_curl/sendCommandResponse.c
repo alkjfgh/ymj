@@ -1,6 +1,8 @@
 /**
  * @file sendCommandResponse.c
  * @brief 명령어 응답 처리 및 서버 통신 관련 기능을 구현한 파일
+ * @author 유명재
+ * @date 2024-11-13
  */
 
 #include "sendCommandResponse.h"
@@ -133,8 +135,7 @@ struct json_object *sendCommandResponse(struct json_object *postData)
     if (isSuccess == 0)
     {
         printf("데이터 전송 성공\n");
-        response = json_tokener_parse(response_str);
-    }
+        }
     else
     {
         printf("데이터 전송 실패\n");

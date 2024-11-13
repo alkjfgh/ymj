@@ -1,3 +1,10 @@
+/**
+ * @file processCommand.c
+ * @brief 커맨드 수신 처리 함수 구현
+ * @author 유명재
+ * @date 2024-11-13
+ */
+
 #include "processCommand.h"
 #include "sendCommandResponse.h"
 #include <json-c/json.h>

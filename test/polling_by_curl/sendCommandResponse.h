@@ -1,3 +1,10 @@
+/**
+ * @file sendCommandResponse.h
+ * @brief 명령어 응답 처리 및 서버 통신 관련 기능을 선언한 파일
+ * @author 유명재
+ * @date 2024-11-13
+ */
+
 #ifndef SEND_COMMAND_RESPONSE_H
 #define SEND_COMMAND_RESPONSE_H
 
