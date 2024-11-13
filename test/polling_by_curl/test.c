@@ -166,7 +166,7 @@ struct json_object *postTcConnectLogin(void)
  * @brief TC Connect Continue 응답을 분석하는 함수
  * @param result 서버로부터 받은 응답 데이터
  * @return int 응답 분석 결과 코드
- * @retval 0 알 수 없��� 응답
+ * @retval 0 알 수 없는 응답
  * @retval 1 'ok' 응답
  * @retval 2 환경 설정 명령
  * @retval 3 일반 명령

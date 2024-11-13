@@ -39,7 +39,7 @@ LIBS = $(LIB_PATH)/lib/libcurl.a \
 TARGET = test
 
 # 소스 파일
-SRCS = test.c globaldata.c libconfig.c libdebug.c libwww_curl.c processCommand.c
+SRCS = test.c globaldata.c libconfig.c libdebug.c libwww_curl.c processCommand.c sendCommandResponse.c
 OBJS = $(SRCS:.c=.o)
 
 all: $(TARGET)

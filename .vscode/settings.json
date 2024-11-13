@@ -3,7 +3,15 @@
         "time.h": "c",
         "http_request.h": "c",
         "stdio.h": "c",
-        "json_builder.h": "c"
+        "json_builder.h": "c",
+        "compare": "cpp",
+        "concepts": "cpp",
+        "type_traits": "cpp",
+        "cmath": "cpp",
+        "limits": "cpp",
+        "new": "cpp",
+        "sendcommandresponse.h": "c",
+        "libwww_curl.h": "c"
     },
     "cmake.sourceDirectory": "/home/daba/ymj/build/curl/curl-8.6.0/docs/libcurl/opts"
 }
