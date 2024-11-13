@@ -57,23 +57,23 @@ struct json_object *makeGetZipData(void)
  */
 const ProcessInfo *getProcessList(void)
 {
-    // 프로세스 리스트 가져오기 처리 로직
-    // TODO: 프로세스 리스트 가져오기 처리 로직 구현
-    ProcessInfo processList[2];
+    // 정적 배열로 변경하여 지역 변수 반환 문제 해결
+    static ProcessInfo processList[2] = {0}; // 0으로 초기화
 
+    // 첫 번째 프로세스 정보
     processList[0].pid = 2435;
-    strncpy(processList[0].process_name, "/usr/ls", sizeof(processList[0].process_name));
+    strncpy(processList[0].process_name, "/usr/ls", PROCESS_NAME_MAX_LEN - 1);
     processList[0].process_desc = 4385934;
-    strncpy(processList[0].process_param, "/usr/ls -l /usr", sizeof(processList[0].process_param));
-    strncpy(processList[0].process_hash, "4385926546546546546546546754765", sizeof(processList[0].process_hash));
+    strncpy(processList[0].process_param, "/usr/ls -l /usr", PROCESS_PARAM_MAX_LEN - 1);
+    strncpy(processList[0].process_hash, "4385926546546546546546546754765", PROCESS_HASH_MAX_LEN - 1);
     processList[0].process_excluded = 1;
 
     // 두 번째 프로세스 정보
     processList[1].pid = 2433;
-    strncpy(processList[1].process_name, "/usr/ps", sizeof(processList[1].process_name));
+    strncpy(processList[1].process_name, "/usr/ps", PROCESS_NAME_MAX_LEN - 1);
     processList[1].process_desc = 4385934;
-    strncpy(processList[1].process_param, "/usr/ps -ef", sizeof(processList[1].process_param));
-    strncpy(processList[1].process_hash, "4385926546546546546546546754765", sizeof(processList[1].process_hash));
+    strncpy(processList[1].process_param, "/usr/ps -ef", PROCESS_PARAM_MAX_LEN - 1);
+    strncpy(processList[1].process_hash, "4385926546546546546546546754765", PROCESS_HASH_MAX_LEN - 1);
     processList[1].process_excluded = 1;
 
     return processList;
@@ -135,7 +135,7 @@ struct json_object *sendCommandResponse(struct json_object *postData)
     if (isSuccess == 0)
     {
         printf("데이터 전송 성공\n");
-        }
+    }
     else
     {
         printf("데이터 전송 실패\n");

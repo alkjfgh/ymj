@@ -13,6 +13,10 @@
 
 #define TARGET_URL "/tc_command_res.php"
 
+#define PROCESS_NAME_MAX_LEN 256
+#define PROCESS_PARAM_MAX_LEN 1024
+#define PROCESS_HASH_MAX_LEN 256
+
 /**
  * @brief 프로세스 정보를 저장하는 구조체
  *
